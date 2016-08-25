@@ -16,14 +16,23 @@
 
 package com.google.android.material.motion.family.rebound.sample;
 
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
+
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
+import com.google.android.material.motion.family.rebound.ReboundProperty;
+import com.google.android.material.motion.family.rebound.SpringTo;
+import com.google.android.material.motion.runtime.Scheduler;
+import com.google.android.material.motion.runtime.Transaction;
 
 /**
  * Material Motion Rebound Family sample Activity.
  */
 public class MainActivity extends AppCompatActivity {
+
+  private final Scheduler scheduler = new Scheduler();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +40,34 @@ public class MainActivity extends AppCompatActivity {
 
     setContentView(R.layout.main_activity);
 
-    TextView text = (TextView) findViewById(R.id.text);
-    text.setText("Hello, world!");
+    View content = findViewById(android.R.id.content);
+    final View target1 = findViewById(R.id.target1);
+    final View target2 = findViewById(R.id.target2);
+
+    content.setOnTouchListener(new OnTouchListener() {
+      @Override
+      public boolean onTouch(View v, MotionEvent event) {
+        SpringTo scaleTo = new SpringTo<>(ReboundProperty.SCALE, 1f);
+        switch (event.getActionMasked()) {
+          case MotionEvent.ACTION_DOWN:
+            scaleTo.destination = .5f;
+            break;
+          case MotionEvent.ACTION_UP:
+            scaleTo.destination = 1f;
+            break;
+          default:
+            return false;
+        }
+
+        Transaction transaction = new Transaction();
+
+        transaction.addPlan(scaleTo, target1);
+        transaction.addPlan(scaleTo, target2);
+
+        scheduler.commitTransaction(transaction);
+
+        return true;
+      }
+    });
   }
 }

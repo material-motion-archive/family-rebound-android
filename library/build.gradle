@@ -25,6 +25,8 @@ android {
 
 dependencies {
   // If you are developing any dependencies locally, also list them in local.dependencies.
+  compile 'com.github.material-motion:material-motion-runtime-android:2.0.0'
+  compile 'com.facebook.rebound:rebound:0.3.8'
 }
 
 // build a jar with source files
