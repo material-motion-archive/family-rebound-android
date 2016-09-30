@@ -16,8 +16,6 @@
 
 package com.google.android.material.motion.family.rebound.sample;
 
-import com.google.android.material.motion.family.rebound.Library;
-
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
@@ -34,6 +32,6 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.main_activity);
 
     TextView text = (TextView) findViewById(R.id.text);
-    text.setText(Library.LIBRARY_NAME);
+    text.setText("Hello, world!");
   }
 }
