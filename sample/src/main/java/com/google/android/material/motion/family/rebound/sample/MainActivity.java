@@ -22,6 +22,7 @@ import android.view.View.OnTouchListener;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.motion.family.rebound.ConfigureSpring;
 import com.google.android.material.motion.family.rebound.ReboundProperty;
 import com.google.android.material.motion.family.rebound.SpringTo;
 import com.google.android.material.motion.runtime.Scheduler;
@@ -58,11 +59,17 @@ public class MainActivity extends AppCompatActivity {
           default:
             return false;
         }
+        ConfigureSpring configureSpring = new ConfigureSpring(ReboundProperty.SCALE);
+        configureSpring.friction =
+          (float) Math.sqrt(4 * SpringTo.DEFAULT_TENSION); // Critically damped.
 
         Transaction transaction = new Transaction();
 
         transaction.addPlan(scaleTo, target1);
         transaction.addPlan(scaleTo, target2);
+
+        transaction.addPlan(configureSpring, target1);
+        transaction.addPlan(configureSpring, target2);
 
         scheduler.commitTransaction(transaction);
 

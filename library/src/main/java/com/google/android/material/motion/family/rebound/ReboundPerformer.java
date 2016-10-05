@@ -48,22 +48,36 @@ public class ReboundPerformer extends Performer implements PlanPerformance, Cont
   @Override
   public void addPlan(Plan plan) {
     if (plan instanceof SpringTo) {
-      SpringTo springTo = (SpringTo) plan;
-
-      float currentFraction = springTo.property.getFraction(getTarget());
-      Object destination = springTo.destination;
-      //noinspection unchecked
-      float destinationFraction = springTo.property.converter.convert(destination);
-
-      Spring spring = getSpring(springTo.property);
-      if (!eq(spring.getCurrentValue(), currentFraction, EPSILON)) {
-        boolean setAtRest = true;
-        //noinspection ConstantConditions
-        spring.setCurrentValue(currentFraction, setAtRest);
-      }
-      spring.setEndValue(destinationFraction);
+      addSpringTo((SpringTo) plan);
+    } else if (plan instanceof ConfigureSpring) {
+      addConfigureSpring((ConfigureSpring) plan);
     } else {
       throw new IllegalArgumentException("Plan type not supported for " + plan);
+    }
+  }
+
+  private void addSpringTo(SpringTo plan) {
+    float currentFraction = plan.property.getFraction(getTarget());
+    Object destination = plan.destination;
+    //noinspection unchecked
+    float destinationFraction = plan.property.converter.convert(destination);
+
+    Spring spring = getSpring(plan.property);
+    if (!eq(spring.getCurrentValue(), currentFraction, EPSILON)) {
+      boolean setAtRest = true;
+      //noinspection ConstantConditions
+      spring.setCurrentValue(currentFraction, setAtRest);
+    }
+    spring.setEndValue(destinationFraction);
+  }
+
+  private void addConfigureSpring(ConfigureSpring plan) {
+    Spring spring = getSpring(plan.property);
+    if (plan.tension != ConfigureSpring.UNSET) {
+      spring.getSpringConfig().tension = plan.tension;
+    }
+    if (plan.friction != ConfigureSpring.UNSET) {
+      spring.getSpringConfig().friction = plan.friction;
     }
   }
 
@@ -72,6 +86,8 @@ public class ReboundPerformer extends Performer implements PlanPerformance, Cont
 
     if (spring == null) {
       spring = springSystem.createSpring();
+      spring.getSpringConfig().tension = SpringTo.DEFAULT_TENSION;
+      spring.getSpringConfig().friction = SpringTo.DEFAULT_FRICTION;
       spring.addListener(lifecycleListener);
       spring.addListener(new SimpleSpringListener() {
         @Override

@@ -16,6 +16,7 @@
 package com.google.android.material.motion.family.rebound;
 
 import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.Plan;
 
@@ -26,9 +27,33 @@ import com.google.android.material.motion.runtime.Plan;
  */
 public class SpringTo<V> extends Plan {
 
+  /**
+   * The default tension.
+   *
+   * Default extracted from a {@link SpringConfig rebound spring config} with origami tension = 40
+   * and origami friction = 7.
+   */
+  public static final float DEFAULT_TENSION = 342f;
+  /**
+   * The default friction.
+   *
+   * Default extracted from a {@link SpringConfig rebound spring config} with origami tension = 40
+   * and origami friction = 7.
+   */
+  public static final float DEFAULT_FRICTION = 30f;
+
+  /**
+   * The property whose value should be pulled towards the destination.
+   */
   public final ReboundProperty<V> property;
+  /**
+   * The value to which the property should be pulled.
+   */
   public V destination;
 
+  /**
+   * Initialize a SpringTo plan for the property with a destination.
+   */
   public SpringTo(ReboundProperty<V> property, V destination) {
     this.property = property;
     this.destination = destination;
