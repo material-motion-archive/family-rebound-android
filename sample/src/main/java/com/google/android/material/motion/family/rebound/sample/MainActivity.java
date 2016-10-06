@@ -16,12 +16,11 @@
 
 package com.google.android.material.motion.family.rebound.sample;
 
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import com.google.android.material.motion.family.rebound.ConfigureSpring;
 import com.google.android.material.motion.family.rebound.ReboundProperty;
 import com.google.android.material.motion.family.rebound.SpringTo;
@@ -59,9 +58,10 @@ public class MainActivity extends AppCompatActivity {
           default:
             return false;
         }
-        ConfigureSpring configureSpring = new ConfigureSpring(ReboundProperty.SCALE);
-        configureSpring.friction =
-          (float) Math.sqrt(4 * SpringTo.DEFAULT_TENSION); // Critically damped.
+        float tension = SpringTo.DEFAULT_TENSION;
+        float friction = (float) Math.sqrt(4 * SpringTo.DEFAULT_TENSION); // Critically damped.
+        ConfigureSpring configureSpring =
+          new ConfigureSpring(ReboundProperty.SCALE, tension, friction);
 
         Transaction transaction = new Transaction();
 

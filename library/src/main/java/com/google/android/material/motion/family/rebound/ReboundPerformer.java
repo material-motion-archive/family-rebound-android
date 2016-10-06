@@ -73,12 +73,8 @@ public class ReboundPerformer extends Performer implements PlanPerformance, Cont
 
   private void addConfigureSpring(ConfigureSpring plan) {
     Spring spring = getSpring(plan.property);
-    if (plan.tension != ConfigureSpring.UNSET) {
-      spring.getSpringConfig().tension = plan.tension;
-    }
-    if (plan.friction != ConfigureSpring.UNSET) {
-      spring.getSpringConfig().friction = plan.friction;
-    }
+    spring.getSpringConfig().tension = plan.tension;
+    spring.getSpringConfig().friction = plan.friction;
   }
 
   private Spring getSpring(final ReboundProperty property) {

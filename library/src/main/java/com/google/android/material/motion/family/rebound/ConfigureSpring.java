@@ -25,34 +25,26 @@ import com.google.android.material.motion.runtime.Plan;
 public class ConfigureSpring extends Plan {
 
   /**
-   * Denotes that the tension or friction is not set and should not change the spring's
-   * corresponding value.
-   */
-  public static final float UNSET = -1f;
-
-  /**
    * The property whose spring traits should be configured.
    */
   public final ReboundProperty property;
 
   /**
    * The tension coefficient for the property's spring.
-   *
-   * If {@link #UNSET}, the spring's tension will not be changed.
    */
-  public float tension = UNSET;
+  public float tension;
   /**
    * The friction coefficient for the property's spring.
-   *
-   * If {@link #UNSET}, the spring's friction will not be changed.
    */
-  public float friction = UNSET;
+  public float friction;
 
   /**
    * Initializes a ConfigureSpring plan for the given property.
    */
-  public ConfigureSpring(ReboundProperty property) {
+  public ConfigureSpring(ReboundProperty property, float tension, float friction) {
     this.property = property;
+    this.tension = tension;
+    this.friction = friction;
   }
 
   @Override
