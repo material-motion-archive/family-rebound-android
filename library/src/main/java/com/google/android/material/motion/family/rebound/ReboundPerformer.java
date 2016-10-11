@@ -49,8 +49,6 @@ public class ReboundPerformer extends Performer implements PlanPerformance, Cont
   public void addPlan(Plan plan) {
     if (plan instanceof SpringTo) {
       addSpringTo((SpringTo) plan);
-    } else if (plan instanceof ConfigureSpring) {
-      addConfigureSpring((ConfigureSpring) plan);
     } else {
       throw new IllegalArgumentException("Plan type not supported for " + plan);
     }
@@ -63,18 +61,19 @@ public class ReboundPerformer extends Performer implements PlanPerformance, Cont
     float destinationFraction = plan.property.converter.convert(destination);
 
     Spring spring = getSpring(plan.property);
+
+    if (plan.configuration != null) {
+      spring.getSpringConfig().tension = plan.configuration.tension;
+      spring.getSpringConfig().friction = plan.configuration.friction;
+    }
+
     if (!eq(spring.getCurrentValue(), currentFraction, EPSILON)) {
       boolean setAtRest = true;
       //noinspection ConstantConditions
       spring.setCurrentValue(currentFraction, setAtRest);
     }
-    spring.setEndValue(destinationFraction);
-  }
 
-  private void addConfigureSpring(ConfigureSpring plan) {
-    Spring spring = getSpring(plan.property);
-    spring.getSpringConfig().tension = plan.tension;
-    spring.getSpringConfig().friction = plan.friction;
+    spring.setEndValue(destinationFraction);
   }
 
   private Spring getSpring(final ReboundProperty property) {
@@ -123,7 +122,7 @@ public class ReboundPerformer extends Performer implements PlanPerformance, Cont
    *
    * <p>Does not handle overflow, underflow, infinity, or NaN.
    */
-  public static boolean eq(double a, double b, double epsilon) {
+  private static boolean eq(double a, double b, double epsilon) {
     return Math.abs(a - b) <= epsilon;
   }
 }

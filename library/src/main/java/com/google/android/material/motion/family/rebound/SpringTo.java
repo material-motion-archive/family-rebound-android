@@ -15,6 +15,7 @@
  */
 package com.google.android.material.motion.family.rebound;
 
+import android.support.annotation.Nullable;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.google.android.material.motion.runtime.Performer;
@@ -52,6 +53,14 @@ public class SpringTo<V> extends Plan {
   public V destination;
 
   /**
+   * The spring's desired configuration.
+   *
+   * If null then the spring's configuration will not be affected.
+   */
+  @Nullable
+  public SpringConfig configuration;
+
+  /**
    * Initialize a SpringTo plan for the property with a destination.
    */
   public SpringTo(ReboundProperty<V> property, V destination) {
@@ -62,5 +71,15 @@ public class SpringTo<V> extends Plan {
   @Override
   public Class<? extends Performer> getPerformerClass() {
     return ReboundPerformer.class;
+  }
+
+  @Override
+  public Plan clone() {
+    //noinspection unchecked
+    SpringTo<V> clone = (SpringTo<V>) super.clone();
+    if (configuration != null) {
+      clone.configuration = new SpringConfig(configuration.tension, configuration.friction);
+    }
+    return clone;
   }
 }
