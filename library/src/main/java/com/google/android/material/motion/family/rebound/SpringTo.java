@@ -61,7 +61,7 @@ public class SpringTo<V> extends Plan {
   public SpringConfig configuration;
 
   /**
-   * Initialize a SpringTo plan for the property with a destination.
+   * Initializes a SpringTo plan for the property with a destination.
    */
   public SpringTo(ReboundProperty<V> property, V destination) {
     this.property = property;
