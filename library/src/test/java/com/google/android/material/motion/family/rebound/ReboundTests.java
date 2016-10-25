@@ -34,7 +34,7 @@ import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
-public class ReboundTest {
+public class ReboundTests {
 
   private static final float EPSILON = 0.0001f;
   /**

@@ -23,14 +23,13 @@ import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringSystem;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.Performer.ContinuousPerformance;
-import com.google.android.material.motion.runtime.Performer.PlanPerformance;
 import com.google.android.material.motion.runtime.Plan;
 
 /**
  * A performer that instantiates and manages {@link Spring Rebound springs}. A separate spring
  * instance is used for every animating {@link ReboundProperty property}.
  */
-public class ReboundPerformer extends Performer implements PlanPerformance, ContinuousPerformance {
+public class ReboundPerformer extends Performer implements ContinuousPerformance {
 
   /**
    * Use a single spring system for all rebound performers. This allows all springs to use the same
