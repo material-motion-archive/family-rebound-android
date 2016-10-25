@@ -46,7 +46,7 @@ public class SpringTo<V> extends Plan {
   /**
    * The property whose value should be pulled towards the destination.
    */
-  public final ReboundProperty<V> property;
+  public final ReboundProperty<?, V> property;
   /**
    * The value to which the property should be pulled.
    */
@@ -63,7 +63,7 @@ public class SpringTo<V> extends Plan {
   /**
    * Initializes a SpringTo plan for the property with a destination.
    */
-  public SpringTo(ReboundProperty<V> property, V destination) {
+  public SpringTo(ReboundProperty<?, V> property, V destination) {
     this.property = property;
     this.destination = destination;
   }

@@ -20,53 +20,54 @@ import android.view.View;
 
 /**
  * Defines the properties that can be animated with {@link SpringTo}.
+ *
+ * @param <T> The type of the target this property acts on.
+ * @param <V> The type of the value this property acts on.
  */
-public class ReboundProperty<V> {
+public class ReboundProperty<T, V> {
 
   private static final TypeConverterCompat<Float> NO_OP = new NoOpConverter();
 
-  public static final ReboundProperty<Float> ALPHA =
+  public static final ReboundProperty<View, Float> ALPHA =
     new ReboundProperty<>(View.ALPHA, NO_OP);
-  public static final ReboundProperty<Float> TRANSLATION_X =
+  public static final ReboundProperty<View, Float> TRANSLATION_X =
     new ReboundProperty<>(View.TRANSLATION_X, NO_OP);
-  public static final ReboundProperty<Float> TRANSLATION_Y =
+  public static final ReboundProperty<View, Float> TRANSLATION_Y =
     new ReboundProperty<>(View.TRANSLATION_Y, NO_OP);
-  public static final ReboundProperty<Float> TRANSLATION_Z =
+  public static final ReboundProperty<View, Float> TRANSLATION_Z =
     new ReboundProperty<>(View.TRANSLATION_Z, NO_OP);
-  public static final ReboundProperty<Float> X =
+  public static final ReboundProperty<View, Float> X =
     new ReboundProperty<>(View.X, NO_OP);
-  public static final ReboundProperty<Float> Y =
+  public static final ReboundProperty<View, Float> Y =
     new ReboundProperty<>(View.Y, NO_OP);
-  public static final ReboundProperty<Float> Z =
+  public static final ReboundProperty<View, Float> Z =
     new ReboundProperty<>(View.Z, NO_OP);
-  public static final ReboundProperty<Float> ROTATION =
+  public static final ReboundProperty<View, Float> ROTATION =
     new ReboundProperty<>(View.ROTATION, NO_OP);
-  public static final ReboundProperty<Float> ROTATION_X =
+  public static final ReboundProperty<View, Float> ROTATION_X =
     new ReboundProperty<>(View.ROTATION_X, NO_OP);
-  public static final ReboundProperty<Float> ROTATION_Y =
+  public static final ReboundProperty<View, Float> ROTATION_Y =
     new ReboundProperty<>(View.ROTATION_Y, NO_OP);
-  public static final ReboundProperty<Float> SCALE_X =
+  public static final ReboundProperty<View, Float> SCALE_X =
     new ReboundProperty<>(View.SCALE_X, NO_OP);
-  public static final ReboundProperty<Float> SCALE_Y =
+  public static final ReboundProperty<View, Float> SCALE_Y =
     new ReboundProperty<>(View.SCALE_Y, NO_OP);
-  public static final ReboundProperty<Float> SCALE =
+  public static final ReboundProperty<View, Float> SCALE =
     new ReboundProperty<>(new CombinedProperty<>(View.SCALE_X, View.SCALE_Y), NO_OP);
 
-  final TypeConverterCompat converter;
-  final Property property;
+  final TypeConverterCompat<V> converter;
+  final Property<T, V> property;
 
-  public ReboundProperty(Property<?, V> property, TypeConverterCompat<V> converter) {
+  public ReboundProperty(Property<T, V> property, TypeConverterCompat<V> converter) {
     this.property = property;
     this.converter = converter;
   }
 
-  @SuppressWarnings("unchecked")
-  public float getFraction(Object target) {
+  public float getFraction(T target) {
     return converter.convert(property.get(target));
   }
 
-  @SuppressWarnings("unchecked")
-  public void setFraction(Object target, float fraction) {
+  public void setFraction(T target, float fraction) {
     property.set(target, converter.convertBack(fraction));
   }
 
