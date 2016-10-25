@@ -15,7 +15,9 @@
  */
 package com.google.android.material.motion.family.rebound;
 
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.SimpleArrayMap;
+import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringSystem;
@@ -34,7 +36,8 @@ public class ReboundPerformer extends Performer implements PlanPerformance, Cont
    * Use a single spring system for all rebound performers. This allows all springs to use the same
    * integration loop.
    */
-  private static final SpringSystem springSystem = SpringSystem.create();
+  @VisibleForTesting
+  static BaseSpringSystem springSystem = SpringSystem.create();
 
   private final SimpleArrayMap<Spring, IsActiveToken> tokens = new SimpleArrayMap<>();
   private final SimpleArrayMap<ReboundProperty, Spring> springs = new SimpleArrayMap<>();
