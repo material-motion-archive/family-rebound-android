@@ -121,12 +121,6 @@ To run all unit tests, run the following commands:
     cd material-motion-family-rebound-android
     gradle test
 
-To run all integration tests, run the following commands:
-
-    git clone https://github.com/material-motion/material-motion-family-rebound-android.git
-    cd material-motion-family-rebound-android
-    gradle connectedAndroidTest
-
 ## Guides
 
 1. [How to animate a property with a SpringTo plan](#how-to-animate-a-property-with-a-springto-plan)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Material Motion Authors. All Rights Reserved.
+ * Copyright 2016-present The Material Motion Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.material.motion.family.rebound.sample;
 
 import android.os.Bundle;
@@ -25,7 +24,6 @@ import com.facebook.rebound.SpringConfig;
 import com.google.android.material.motion.family.rebound.ReboundProperty;
 import com.google.android.material.motion.family.rebound.SpringTo;
 import com.google.android.material.motion.runtime.Scheduler;
-import com.google.android.material.motion.runtime.Transaction;
 
 /**
  * Material Motion Rebound Family sample Activity.
