@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     content.setOnTouchListener(new OnTouchListener() {
       @Override
       public boolean onTouch(View v, MotionEvent event) {
-        SpringTo scaleTo = new SpringTo<>(ReboundProperty.SCALE, 1f);
+        SpringTo<Float> scaleTo = new SpringTo<>(ReboundProperty.SCALE, 1f);
         switch (event.getActionMasked()) {
           case MotionEvent.ACTION_DOWN:
             scaleTo.destination = .5f;
@@ -63,12 +63,8 @@ public class MainActivity extends AppCompatActivity {
         float friction = (float) Math.sqrt(4 * SpringTo.DEFAULT_TENSION); // Critically damped.
         scaleTo.configuration = new SpringConfig(tension, friction);
 
-        Transaction transaction = new Transaction();
-
-        transaction.addPlan(scaleTo, target1);
-        transaction.addPlan(scaleTo, target2);
-
-        scheduler.commitTransaction(transaction);
+        scheduler.addPlan(scaleTo, target1);
+        scheduler.addPlan(scaleTo, target2);
 
         return true;
       }

@@ -3,7 +3,23 @@
 [![Build Status](https://travis-ci.org/material-motion/material-motion-family-rebound-android.svg?branch=develop)](https://travis-ci.org/material-motion/material-motion-family-rebound-android)
 [![codecov](https://codecov.io/gh/material-motion/material-motion-family-rebound-android/branch/develop/graph/badge.svg)](https://codecov.io/gh/material-motion/material-motion-family-rebound-android)
 
-The Material Motion Rebound Family repo.
+The Rebound Material Motion family provides a bridge between
+[Facebook's Rebound library](https://github.com/facebook/rebound) and the
+[Material Motion runtime](https://github.com/material-motion/material-motion-runtime-android).
+
+## Features
+
+`SpringTo` uses Rebound springs to animate properties using spring physics driven on the main thread of
+the application.
+
+For example, you might use a SpringTo plan to scale a view:
+
+```java
+SpringTo<Float> scaleTo = new SpringTo<>(ReboundProperty.SCALE, 0.5f);
+scheduler.addPlan(scaleTo, view);
+```
+
+SpringTo supports the properties included in the ReboundProperty class.
 
 ## Installation
 
@@ -113,14 +129,24 @@ To run all integration tests, run the following commands:
 
 ## Guides
 
-1. [Architecture](#architecture)
-2. [How to ...](#how-to-...)
+1. [How to animate a property with a SpringTo plan](#how-to-animate-a-property-with-a-springto-plan)
+2. [How to configure spring behavior](#how-to-configure-spring-behavior)
 
-### Architecture
+### How to animate a property with a SpringTo plan
 
-https://github.com/material-motion/material-motion-family-rebound-android/issues/1
+```java
+SpringTo<Float> scaleTo = new SpringTo<>(ReboundProperty.SCALE, 0.5f);
+scheduler.addPlan(scaleTo, view);
+```
 
-### How to ...
+### How to configure spring behavior
+
+A spring's behavior can be configured by setting a `SpringConfig` object on the SpringTo
+instance.
+
+```java
+scaleTo.configuration = new SpringConfig(SpringTo.DEFAULT_TENSION, SpringTo.DEFAULT_FRICTION);
+```
 
 https://github.com/material-motion/material-motion-family-rebound-android/issues/1
 
