@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Material Motion Authors. All Rights Reserved.
+ * Copyright 2016-present The Material Motion Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.material.motion.family.rebound.sample;
-
-import com.google.android.material.motion.family.rebound.Library;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import com.facebook.rebound.SpringConfig;
+import com.google.android.material.motion.family.rebound.ReboundProperty;
+import com.google.android.material.motion.family.rebound.SpringTo;
+import com.google.android.material.motion.runtime.Scheduler;
 
 /**
  * Material Motion Rebound Family sample Activity.
  */
 public class MainActivity extends AppCompatActivity {
+
+  private final Scheduler scheduler = new Scheduler();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +38,34 @@ public class MainActivity extends AppCompatActivity {
 
     setContentView(R.layout.main_activity);
 
-    TextView text = (TextView) findViewById(R.id.text);
-    text.setText(Library.LIBRARY_NAME);
+    View content = findViewById(android.R.id.content);
+    final View target1 = findViewById(R.id.target1);
+    final View target2 = findViewById(R.id.target2);
+
+    content.setOnTouchListener(new OnTouchListener() {
+      @Override
+      public boolean onTouch(View v, MotionEvent event) {
+        SpringTo<Float> scaleTo = new SpringTo<>(ReboundProperty.SCALE, 1f);
+        switch (event.getActionMasked()) {
+          case MotionEvent.ACTION_DOWN:
+            scaleTo.destination = .5f;
+            break;
+          case MotionEvent.ACTION_UP:
+            scaleTo.destination = 1f;
+            break;
+          default:
+            return false;
+        }
+
+        float tension = SpringTo.DEFAULT_TENSION;
+        float friction = (float) Math.sqrt(4 * SpringTo.DEFAULT_TENSION); // Critically damped.
+        scaleTo.configuration = new SpringConfig(tension, friction);
+
+        scheduler.addPlan(scaleTo, target1);
+        scheduler.addPlan(scaleTo, target2);
+
+        return true;
+      }
+    });
   }
 }

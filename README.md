@@ -1,8 +1,29 @@
 # Material Motion Rebound Family
 
-The Material Motion Rebound Family repo.
+[![Build Status](https://travis-ci.org/material-motion/material-motion-family-rebound-android.svg?branch=develop)](https://travis-ci.org/material-motion/material-motion-family-rebound-android)
+[![codecov](https://codecov.io/gh/material-motion/material-motion-family-rebound-android/branch/develop/graph/badge.svg)](https://codecov.io/gh/material-motion/material-motion-family-rebound-android)
 
-## Depending on the library
+The Rebound Material Motion family provides a bridge between
+[Facebook's Rebound library](https://github.com/facebook/rebound) and the
+[Material Motion runtime](https://github.com/material-motion/material-motion-runtime-android).
+
+## Features
+
+`SpringTo` uses Rebound springs to animate properties using spring physics driven on the main thread of
+the application.
+
+For example, you might use a SpringTo plan to scale a view:
+
+```java
+SpringTo<Float> scaleTo = new SpringTo<>(ReboundProperty.SCALE, 0.5f);
+scheduler.addPlan(scaleTo, view);
+```
+
+SpringTo supports the properties included in the ReboundProperty class.
+
+## Installation
+
+### Installation with Jitpack
 
 Use Jitpack to depend on any of our [public releases](https://github.com/material-motion/material-motion-family-rebound-android/releases).
 
@@ -76,6 +97,53 @@ local dependencies of their own, you must `gradle install` them as well. See
 You must `gradle clean` your project every time you add or remove a local
 dependency.
 
+### Usage
+
+How to use the library in your project.
+
+#### Editing the library in Android Studio
+
+Open Android Studio,
+choose `File > New > Import`,
+choose the root `build.gradle` file.
+
+## Example apps/unit tests
+
+To build the sample application, run the following commands:
+
+    git clone https://github.com/material-motion/material-motion-family-rebound-android.git
+    cd material-motion-family-rebound-android
+    gradle installDebug
+
+To run all unit tests, run the following commands:
+
+    git clone https://github.com/material-motion/material-motion-family-rebound-android.git
+    cd material-motion-family-rebound-android
+    gradle test
+
+## Guides
+
+1. [How to animate a property with a SpringTo plan](#how-to-animate-a-property-with-a-springto-plan)
+2. [How to configure spring behavior](#how-to-configure-spring-behavior)
+
+### How to animate a property with a SpringTo plan
+
+```java
+SpringTo<Float> scaleTo = new SpringTo<>(ReboundProperty.SCALE, 0.5f);
+scheduler.addPlan(scaleTo, view);
+```
+
+### How to configure spring behavior
+
+A spring's behavior can be configured by setting a `SpringConfig` object on the SpringTo
+instance.
+
+```java
+scaleTo.configuration = new SpringConfig(SpringTo.DEFAULT_TENSION, SpringTo.DEFAULT_FRICTION);
+```
+
+https://github.com/material-motion/material-motion-family-rebound-android/issues/1
+
 ## Contributing
 
 We welcome contributions!
@@ -85,16 +153,6 @@ Check out our [upcoming milestones](https://github.com/material-motion/material-
 Learn more about [our team](https://material-motion.gitbooks.io/material-motion-team/content/),
 [our community](https://material-motion.gitbooks.io/material-motion-team/content/community/),
 and our [contributor essentials](https://material-motion.gitbooks.io/material-motion-team/content/essentials/).
-
-### Editing the library in Android Studio
-
-Open Android Studio,
-choose `File > New > Import`,
-choose the root `build.gradle` file.
-
-### Building the sample
-
-Run `gradle installDebug` from the project root.
 
 ## License
 
