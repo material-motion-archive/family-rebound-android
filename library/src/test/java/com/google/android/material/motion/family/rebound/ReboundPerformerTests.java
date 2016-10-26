@@ -15,18 +15,24 @@
  */
 package com.google.android.material.motion.family.rebound;
 
-import static com.google.android.material.motion.family.rebound.ReboundPerformer.springSystem;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import com.facebook.rebound.BaseSpringSystem;
+import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SteppingLooper;
+import com.google.android.material.motion.runtime.Performer;
+import com.google.android.material.motion.runtime.Performer.ContinuousPerformance.IsActiveToken;
+import com.google.android.material.motion.runtime.Performer.ContinuousPerformance.IsActiveTokenGenerator;
+import com.google.android.material.motion.runtime.Plan;
 import com.google.android.material.motion.runtime.Scheduler;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
@@ -46,6 +52,9 @@ public class ReboundPerformerTests {
   private View target;
   private SteppingLooper springLooper;
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Before
   public void setUp() {
     scheduler = new Scheduler();
@@ -54,7 +63,7 @@ public class ReboundPerformerTests {
 
     // Prevent springs from using the actual looper, which cripples robolectric.
     springLooper = new SteppingLooper();
-    springSystem = new BaseSpringSystem(springLooper);
+    ReboundPerformer.springSystem = new BaseSpringSystem(springLooper);
   }
 
   @Test
@@ -143,6 +152,57 @@ public class ReboundPerformerTests {
     assertThat(overshoot).isFalse();
   }
 
+  @Test
+  public void reuseSpringForSameProperty() {
+    ReboundPerformer performer = createReboundPerformer();
+
+    assertThat(performer.springs.size()).isEqualTo(0);
+
+    performer.addPlan(new SpringTo<>(ReboundProperty.ALPHA, 0f));
+    assertThat(performer.springs.size()).isEqualTo(1);
+
+    // Same property.
+    performer.addPlan(new SpringTo<>(ReboundProperty.ALPHA, 1f));
+    assertThat(performer.springs.size()).isEqualTo(1);
+  }
+
+  @Test
+  public void createSpringForNewProperty() {
+    ReboundPerformer performer = createReboundPerformer();
+
+    assertThat(performer.springs.size()).isEqualTo(0);
+
+    performer.addPlan(new SpringTo<>(ReboundProperty.ALPHA, 0f));
+    assertThat(performer.springs.size()).isEqualTo(1);
+
+    // Different property.
+    performer.addPlan(new SpringTo<>(ReboundProperty.SCALE, 0f));
+    assertThat(performer.springs.size()).isEqualTo(2);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void unsupportedPlanThrowsException() {
+    ReboundPerformer performer = createReboundPerformer();
+
+    performer.addPlan(new UnsupportedPlan());
+  }
+
+  @Test
+  public void lifecycleListenerActivateTwiceThrowsException() throws IllegalStateException {
+    ReboundPerformer performer = createReboundPerformer();
+    Spring spring = ReboundPerformer.springSystem.createSpring();
+
+    // No exceptions expected.
+    performer.lifecycleListener.onSpringActivate(spring);
+
+    // Different spring. No exceptions expected.
+    performer.lifecycleListener.onSpringActivate(ReboundPerformer.springSystem.createSpring());
+
+    // Same spring activated twice. Expect exception.
+    thrown.expect(IllegalStateException.class);
+    performer.lifecycleListener.onSpringActivate(spring);
+  }
+
   /**
    * Advance the spring simulation by one frame.
    */
@@ -157,6 +217,35 @@ public class ReboundPerformerTests {
     boolean idle = false;
     while (!idle) {
       idle = springLooper.step(FRAME);
+    }
+  }
+
+  /**
+   * Creates and initializes a ReboundPerformer manually, rather than letting the {@link Scheduler}
+   * do it.
+   */
+  private ReboundPerformer createReboundPerformer() {
+    ReboundPerformer performer = new ReboundPerformer();
+    performer.initialize(target);
+    performer.setIsActiveTokenGenerator(new IsActiveTokenGenerator() {
+      @Override
+      public IsActiveToken generate() {
+        return new IsActiveToken() {
+          @Override
+          public void terminate() {
+            // No-op.
+          }
+        };
+      }
+    });
+    return performer;
+  }
+
+  private static class UnsupportedPlan extends Plan {
+
+    @Override
+    public Class<? extends Performer> getPerformerClass() {
+      return ReboundPerformer.class;
     }
   }
 }

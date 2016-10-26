@@ -38,8 +38,9 @@ public class ReboundPerformer extends Performer implements ContinuousPerformance
   @VisibleForTesting
   static BaseSpringSystem springSystem = SpringSystem.create();
 
+  @VisibleForTesting
+  final SimpleArrayMap<ReboundProperty, Spring> springs = new SimpleArrayMap<>();
   private final SimpleArrayMap<Spring, IsActiveToken> tokens = new SimpleArrayMap<>();
-  private final SimpleArrayMap<ReboundProperty, Spring> springs = new SimpleArrayMap<>();
   private IsActiveTokenGenerator isActiveTokenGenerator;
 
   @Override
@@ -99,7 +100,8 @@ public class ReboundPerformer extends Performer implements ContinuousPerformance
     return spring;
   }
 
-  private final SimpleSpringListener lifecycleListener = new SimpleSpringListener() {
+  @VisibleForTesting
+  final SimpleSpringListener lifecycleListener = new SimpleSpringListener() {
 
     @Override
     public void onSpringActivate(Spring spring) {
