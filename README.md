@@ -16,7 +16,7 @@ For example, you might use a SpringTo plan to scale a view:
 
 ```java
 SpringTo<Float> scaleTo = new SpringTo<>(ReboundProperty.SCALE, 0.5f);
-scheduler.addPlan(scaleTo, view);
+runtime.addPlan(scaleTo, view);
 ```
 
 SpringTo supports the properties included in the ReboundProperty class.
@@ -130,7 +130,7 @@ To run all unit tests, run the following commands:
 
 ```java
 SpringTo<Float> scaleTo = new SpringTo<>(ReboundProperty.SCALE, 0.5f);
-scheduler.addPlan(scaleTo, view);
+runtime.addPlan(scaleTo, view);
 ```
 
 ### How to configure spring behavior

@@ -28,7 +28,7 @@ import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming.IsActiveToken;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming.IsActiveTokenGenerator;
 import com.google.android.material.motion.runtime.Plan;
-import com.google.android.material.motion.runtime.Scheduler;
+import com.google.android.material.motion.runtime.Runtime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class ReboundPerformerTests {
    */
   private static final int FRAME = 16;
 
-  private Scheduler scheduler;
+  private Runtime runtime;
   private View target;
   private SteppingLooper springLooper;
 
@@ -57,7 +57,7 @@ public class ReboundPerformerTests {
 
   @Before
   public void setUp() {
-    scheduler = new Scheduler();
+    runtime = new Runtime();
     Context context = Robolectric.setupActivity(Activity.class);
     target = new View(context);
 
@@ -71,7 +71,7 @@ public class ReboundPerformerTests {
     target.setAlpha(1f);
     SpringTo<Float> fadeOut = new SpringTo<>(ReboundProperty.ALPHA, 0f);
 
-    scheduler.addPlan(fadeOut, target);
+    runtime.addPlan(fadeOut, target);
 
     // No change in alpha yet.
     assertThat(target.getAlpha()).isWithin(0).of(1f);
@@ -86,22 +86,22 @@ public class ReboundPerformerTests {
   }
 
   @Test
-  public void didChangeSchedulerState() {
-    // Scheduler is initially idle.
-    assertThat(scheduler.getState()).isEqualTo(Scheduler.IDLE);
+  public void didChangeRuntimeState() {
+    // Runtime is initially idle.
+    assertThat(runtime.getState()).isEqualTo(Runtime.IDLE);
 
-    scheduler.addPlan(new SpringTo<>(ReboundProperty.ALPHA, 0f), target);
+    runtime.addPlan(new SpringTo<>(ReboundProperty.ALPHA, 0f), target);
 
-    // Scheduler is still idle - spring not yet activated.
-    assertThat(scheduler.getState()).isEqualTo(Scheduler.IDLE);
+    // Runtime is still idle - spring not yet activated.
+    assertThat(runtime.getState()).isEqualTo(Runtime.IDLE);
 
-    // Scheduler is now active.
+    // Runtime is now active.
     stepOnce();
-    assertThat(scheduler.getState()).isEqualTo(Scheduler.ACTIVE);
+    assertThat(runtime.getState()).isEqualTo(Runtime.ACTIVE);
 
-    // Scheduler is idle again when settled.
+    // Runtime is idle again when settled.
     stepUntilSettled();
-    assertThat(scheduler.getState()).isEqualTo(Scheduler.IDLE);
+    assertThat(runtime.getState()).isEqualTo(Runtime.IDLE);
   }
 
   @Test
@@ -113,7 +113,7 @@ public class ReboundPerformerTests {
     scaleUp.configuration =
       new SpringConfig(SpringTo.DEFAULT_TENSION, SpringTo.DEFAULT_FRICTION / 2);
 
-    scheduler.addPlan(scaleUp, target);
+    runtime.addPlan(scaleUp, target);
 
     // Track whether the target value ever shoots beyond 1f.
     boolean overshoot = false;
@@ -137,7 +137,7 @@ public class ReboundPerformerTests {
     scaleUp.configuration =
       new SpringConfig(SpringTo.DEFAULT_TENSION, SpringTo.DEFAULT_FRICTION * 2);
 
-    scheduler.addPlan(scaleUp, target);
+    runtime.addPlan(scaleUp, target);
 
     // Track whether the target value ever shoots beyond 1f.
     boolean overshoot = false;
@@ -221,8 +221,8 @@ public class ReboundPerformerTests {
   }
 
   /**
-   * Creates and initializes a ReboundPerformer manually, rather than letting the {@link Scheduler}
-   * do it.
+   * Creates and initializes a ReboundPerformer manually, rather than letting the {@link Runtime} do
+   * it.
    */
   private ReboundPerformer createReboundPerformer() {
     ReboundPerformer performer = new ReboundPerformer();

@@ -23,14 +23,14 @@ import android.view.View.OnTouchListener;
 import com.facebook.rebound.SpringConfig;
 import com.google.android.material.motion.family.rebound.ReboundProperty;
 import com.google.android.material.motion.family.rebound.SpringTo;
-import com.google.android.material.motion.runtime.Scheduler;
+import com.google.android.material.motion.runtime.Runtime;
 
 /**
  * Material Motion Rebound Family sample Activity.
  */
 public class MainActivity extends AppCompatActivity {
 
-  private final Scheduler scheduler = new Scheduler();
+  private final Runtime runtime = new Runtime();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
         float friction = (float) Math.sqrt(4 * SpringTo.DEFAULT_TENSION); // Critically damped.
         scaleTo.configuration = new SpringConfig(tension, friction);
 
-        scheduler.addPlan(scaleTo, target1);
-        scheduler.addPlan(scaleTo, target2);
+        runtime.addPlan(scaleTo, target1);
+        runtime.addPlan(scaleTo, target2);
 
         return true;
       }
