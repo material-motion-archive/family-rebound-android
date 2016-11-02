@@ -21,11 +21,13 @@ runtime.addPlan(scaleTo, view);
 
 SpringTo supports the properties included in the ReboundProperty class.
 
+Learn more about the APIs defined in the library by reading our
+[technical documentation](https://jitpack.io/com/github/material-motion/material-motion-family-rebound-android/1.0.0/javadoc/) and our
+[Starmap](https://material-motion.gitbooks.io/material-motion-starmap/content/specifications/runtime/).
+
 ## Installation
 
 ### Installation with Jitpack
-
-Use Jitpack to depend on any of our [public releases](https://github.com/material-motion/material-motion-family-rebound-android/releases).
 
 Add the Jitpack repository to your project's `build.gradle`:
 
@@ -37,19 +39,8 @@ allprojects {
 }
 ```
 
-When starting out with a project it is likely that you will want to use the
-latest version of the library. Add the dependency to your module's
-`build.gradle`:
-
-```gradle
-dependencies {
-    compile 'com.github.material-motion:material-motion-family-rebound-android:+'
-}
-```
-
-Later on in the project you may want to freeze to a specific version of the
-library. This is **highly recommended** because it makes your builds predictable
-and reproducible. Take care to occasionally [check for updates](https://github.com/ben-manes/gradle-versions-plugin).
+Depend on the [latest version](https://github.com/material-motion/material-motion-family-rebound-android/releases) of the library.
+Take care to occasionally [check for updates](https://github.com/ben-manes/gradle-versions-plugin).
 
 ```gradle
 dependencies {
@@ -57,19 +48,8 @@ dependencies {
 }
 ```
 
-It is also possible to specify a *dynamic version* range. This is useful to stay
-up to date on a major version, without the risk of new library releases
-introducing breaking changes into your project.
-
-```gradle
-dependencies {
-    compile 'com.github.material-motion:material-motion-family-rebound-android:1.+'
-}
-```
-
 For more information regarding versioning, see:
 
-- [Gradle Documentation on Dynamic Versions](https://docs.gradle.org/current/userguide/dependency_management.html#sub:dynamic_versions_and_changing_modules)
 - [Material Motion Versioning Policies](https://material-motion.gitbooks.io/material-motion-team/content/essentials/core_team_contributors/release_process.html#versioning)
 
 ### Using the files from a folder local to the machine
