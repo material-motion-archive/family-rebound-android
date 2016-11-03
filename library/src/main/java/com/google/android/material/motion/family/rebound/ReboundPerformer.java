@@ -22,14 +22,14 @@ import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringSystem;
 import com.google.android.material.motion.runtime.Performer;
-import com.google.android.material.motion.runtime.Performer.ContinuousPerformance;
-import com.google.android.material.motion.runtime.Plan;
+import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming;
+import com.google.android.material.motion.runtime.PlanFeatures.BasePlan;
 
 /**
  * A performer that instantiates and manages {@link Spring Rebound springs}. A separate spring
  * instance is used for every animating {@link ReboundProperty property}.
  */
-public class ReboundPerformer extends Performer implements ContinuousPerformance {
+public class ReboundPerformer extends Performer implements ContinuousPerforming {
 
   /**
    * Use a single spring system for all rebound performers. This allows all springs to use the same
@@ -49,7 +49,7 @@ public class ReboundPerformer extends Performer implements ContinuousPerformance
   }
 
   @Override
-  public void addPlan(Plan plan) {
+  public void addPlan(BasePlan plan) {
     if (plan instanceof SpringTo) {
       addSpringTo((SpringTo) plan);
     } else {
