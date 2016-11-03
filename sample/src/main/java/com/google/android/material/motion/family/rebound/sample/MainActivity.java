@@ -20,7 +20,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
 import com.facebook.rebound.SpringConfig;
+import com.google.android.libraries.remixer.annotation.RangeVariableMethod;
+import com.google.android.libraries.remixer.annotation.RemixerBinder;
+import com.google.android.libraries.remixer.ui.gesture.Direction;
+import com.google.android.libraries.remixer.ui.view.RemixerFragment;
 import com.google.android.material.motion.family.rebound.ReboundProperty;
 import com.google.android.material.motion.family.rebound.SpringTo;
 import com.google.android.material.motion.runtime.Runtime;
@@ -31,12 +36,21 @@ import com.google.android.material.motion.runtime.Runtime;
 public class MainActivity extends AppCompatActivity {
 
   private final Runtime runtime = new Runtime();
+  private int tension;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.main_activity);
+
+    RemixerBinder.bind(this);
+    RemixerFragment remixerFragment = RemixerFragment.newInstance();
+    remixerFragment.attachToGesture(this, Direction.UP, 3);
+    remixerFragment.attachToButton(this, (Button) findViewById(R.id.remixer_button));
+
+    // TODO: Remove once https://github.com/material-foundation/material-remixer-android/issues/56 is fixed.
+    tension = (int) SpringTo.DEFAULT_TENSION;
 
     View content = findViewById(android.R.id.content);
     final View target1 = findViewById(R.id.target1);
@@ -57,8 +71,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
 
-        float tension = SpringTo.DEFAULT_TENSION;
-        float friction = (float) Math.sqrt(4 * SpringTo.DEFAULT_TENSION); // Critically damped.
+        float friction = (float) Math.sqrt(4 * tension); // Critically damped.
         scaleTo.configuration = new SpringConfig(tension, friction);
 
         runtime.addPlan(scaleTo, target1);
@@ -67,5 +80,10 @@ public class MainActivity extends AppCompatActivity {
         return true;
       }
     });
+  }
+
+  @RangeVariableMethod(maxValue = 1000, defaultValue = (int) SpringTo.DEFAULT_TENSION)
+  public void setSpringTension(Integer tension) {
+    this.tension = tension;
   }
 }

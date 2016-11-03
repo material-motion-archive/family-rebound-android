@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
 
 android {
   compileSdkVersion 24
@@ -32,4 +33,9 @@ dependencies {
   // If you are developing any dependencies locally, also list them in local.dependencies.
   compile project(':library')
   compile 'com.android.support:appcompat-v7:24.2.1'
+
+  compile 'com.github.material-foundation.material-remixer-android:remixer_core:develop-SNAPSHOT'
+  compile 'com.github.material-foundation.material-remixer-android:remixer_ui:develop-SNAPSHOT'
+  compile 'com.github.material-foundation.material-remixer-android:remixer_storage:develop-SNAPSHOT'
+  provided 'com.github.material-foundation.material-remixer-android:remixer_annotation:develop-SNAPSHOT'
 }
