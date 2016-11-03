@@ -22,7 +22,7 @@ runtime.addPlan(scaleTo, view);
 SpringTo supports the properties included in the ReboundProperty class.
 
 Learn more about the APIs defined in the library by reading our
-[technical documentation](https://jitpack.io/com/github/material-motion/material-motion-family-rebound-android/1.0.0/javadoc/) and our
+[technical documentation](https://jitpack.io/com/github/material-motion/material-motion-family-rebound-android/1.1.0/javadoc/) and our
 [Starmap](https://material-motion.gitbooks.io/material-motion-starmap/content/specifications/runtime/).
 
 ## Installation
@@ -44,7 +44,7 @@ Take care to occasionally [check for updates](https://github.com/ben-manes/gradl
 
 ```gradle
 dependencies {
-    compile 'com.github.material-motion:material-motion-family-rebound-android:1.0.0'
+    compile 'com.github.material-motion:material-motion-family-rebound-android:1.1.0'
 }
 ```
 
