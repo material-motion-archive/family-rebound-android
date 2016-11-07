@@ -29,6 +29,7 @@ import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPe
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming.IsActiveTokenGenerator;
 import com.google.android.material.motion.runtime.Plan;
 import com.google.android.material.motion.runtime.Runtime;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,6 +53,8 @@ public class ReboundPerformerTests {
   private View target;
   private SteppingLooper springLooper;
 
+  private BaseSpringSystem originalSpringSystem;
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -62,8 +65,14 @@ public class ReboundPerformerTests {
     target = new View(context);
 
     // Prevent springs from using the actual looper, which cripples robolectric.
+    originalSpringSystem = ReboundPerformer.springSystem;
     springLooper = new SteppingLooper();
     ReboundPerformer.springSystem = new BaseSpringSystem(springLooper);
+  }
+
+  @After
+  public void tearDown() {
+    ReboundPerformer.springSystem = originalSpringSystem;
   }
 
   @Test
