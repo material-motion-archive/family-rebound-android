@@ -1,11 +1,11 @@
 # Material Motion Rebound Family
 
-[![Build Status](https://travis-ci.org/material-motion/material-motion-family-rebound-android.svg?branch=develop)](https://travis-ci.org/material-motion/material-motion-family-rebound-android)
-[![codecov](https://codecov.io/gh/material-motion/material-motion-family-rebound-android/branch/develop/graph/badge.svg)](https://codecov.io/gh/material-motion/material-motion-family-rebound-android)
+[![Build Status](https://travis-ci.org/material-motion/family-rebound-android.svg?branch=develop)](https://travis-ci.org/material-motion/family-rebound-android)
+[![codecov](https://codecov.io/gh/material-motion/family-rebound-android/branch/develop/graph/badge.svg)](https://codecov.io/gh/material-motion/family-rebound-android)
 
 The Rebound Material Motion family provides a bridge between
 [Facebook's Rebound library](https://github.com/facebook/rebound) and the
-[Material Motion runtime](https://github.com/material-motion/material-motion-runtime-android).
+[Material Motion runtime](https://github.com/material-motion/runtime-android).
 
 ## Features
 
@@ -22,7 +22,7 @@ runtime.addPlan(scaleTo, view);
 SpringTo supports the properties included in the ReboundProperty class.
 
 Learn more about the APIs defined in the library by reading our
-[technical documentation](https://jitpack.io/com/github/material-motion/material-motion-family-rebound-android/1.1.0/javadoc/) and our
+[technical documentation](https://jitpack.io/com/github/material-motion/family-rebound-android/1.1.0/javadoc/) and our
 [Starmap](https://material-motion.gitbooks.io/material-motion-starmap/content/specifications/runtime/).
 
 ## Installation
@@ -39,7 +39,7 @@ allprojects {
 }
 ```
 
-Depend on the [latest version](https://github.com/material-motion/material-motion-family-rebound-android/releases) of the library.
+Depend on the [latest version](https://github.com/material-motion/family-rebound-android/releases) of the library.
 Take care to occasionally [check for updates](https://github.com/ben-manes/gradle-versions-plugin).
 
 ```gradle
