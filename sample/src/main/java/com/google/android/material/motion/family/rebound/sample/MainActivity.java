@@ -49,9 +49,6 @@ public class MainActivity extends AppCompatActivity {
     remixerFragment.attachToGesture(this, Direction.UP, 3);
     remixerFragment.attachToButton(this, (Button) findViewById(R.id.remixer_button));
 
-    // TODO: Remove once https://github.com/material-foundation/material-remixer-android/issues/56 is fixed.
-    tension = (int) SpringTo.DEFAULT_TENSION;
-
     View content = findViewById(android.R.id.content);
     final View target1 = findViewById(R.id.target1);
     final View target2 = findViewById(R.id.target2);
