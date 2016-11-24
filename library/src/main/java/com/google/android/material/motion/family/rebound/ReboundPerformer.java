@@ -17,13 +17,19 @@ package com.google.android.material.motion.family.rebound;
 
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.SimpleArrayMap;
+
 import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringSystem;
+import com.google.android.material.motion.gestures.GestureRecognizer;
+import com.google.android.material.motion.gestures.GestureRecognizer.GestureStateChangeListener;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming;
 import com.google.android.material.motion.runtime.PlanFeatures.BasePlan;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A performer that instantiates and manages {@link Spring Rebound springs}. A separate spring
@@ -32,14 +38,23 @@ import com.google.android.material.motion.runtime.PlanFeatures.BasePlan;
 public class ReboundPerformer extends Performer implements ContinuousPerforming {
 
   /**
-   * Use a single spring system for all rebound performers. This allows all springs to use the same
-   * integration loop.
+   * Use a single spring system for all rebound performers. This allows all springs to use the
+   * same integration loop.
    */
   @VisibleForTesting
   static BaseSpringSystem springSystem = SpringSystem.create();
 
+  private static final double EPSILON = 0.01f;
+
   @VisibleForTesting
   final SimpleArrayMap<ReboundProperty, Spring> springs = new SimpleArrayMap<>();
+  private final SimpleArrayMap<GestureRecognizer, Set<ReboundProperty>> pausesSpringMap =
+    new SimpleArrayMap<>();
+  private final SimpleArrayMap<ReboundProperty, Set<GestureRecognizer>> pausesSpringInverseMap =
+    new SimpleArrayMap<>();
+
+  private final SimpleArrayMap<Spring, Double> pausedEndFractions = new SimpleArrayMap<>();
+
   private final SimpleArrayMap<Spring, IsActiveToken> tokens = new SimpleArrayMap<>();
   private IsActiveTokenGenerator isActiveTokenGenerator;
 
@@ -52,17 +67,14 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
   public void addPlan(BasePlan plan) {
     if (plan instanceof SpringTo) {
       addSpringTo((SpringTo) plan);
+    } else if (plan instanceof PausesSpring) {
+      addPausesSpring((PausesSpring) plan);
     } else {
       throw new IllegalArgumentException("Plan type not supported for " + plan);
     }
   }
 
   private void addSpringTo(SpringTo plan) {
-    float currentFraction = plan.property.getFraction(getTarget());
-    Object destination = plan.destination;
-    //noinspection unchecked
-    float destinationFraction = plan.property.converter.convert(destination);
-
     Spring spring = getSpring(plan.property);
 
     if (plan.configuration != null) {
@@ -70,13 +82,8 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
       spring.getSpringConfig().friction = plan.configuration.friction;
     }
 
-    if (!eq(spring.getCurrentValue(), currentFraction, EPSILON)) {
-      boolean setAtRest = true;
-      //noinspection ConstantConditions
-      spring.setCurrentValue(currentFraction, setAtRest);
-    }
-
-    spring.setEndValue(destinationFraction);
+    float destinationFraction = plan.property.converter.convert(plan.destination);
+    startSpring(spring, plan.property, destinationFraction);
   }
 
   private Spring getSpring(final ReboundProperty property) {
@@ -100,6 +107,22 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
     return spring;
   }
 
+  private void startSpring(Spring spring, ReboundProperty property, double destinationFraction) {
+    float currentFraction = property.getFraction(getTarget());
+    if (!eq(spring.getCurrentValue(), currentFraction, EPSILON)) {
+      boolean setAtRest = true;
+      //noinspection ConstantConditions
+      spring.setCurrentValue(currentFraction, setAtRest);
+    }
+
+    //noinspection unchecked
+    if (!isPropertyPaused(property)) {
+      spring.setEndValue(destinationFraction);
+    } else {
+      pausedEndFractions.put(spring, destinationFraction);
+    }
+  }
+
   @VisibleForTesting
   final SimpleSpringListener lifecycleListener = new SimpleSpringListener() {
 
@@ -116,15 +139,73 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
     }
   };
 
-  private static final double EPSILON = 0.01f;
+  private void addPausesSpring(PausesSpring plan) {
+    // Add to map.
+    Set<ReboundProperty> properties = pausesSpringMap.get(plan.gestureRecognizer);
+    if (properties == null) {
+      properties = new HashSet<>();
+      pausesSpringMap.put(plan.gestureRecognizer, properties);
+    }
+    properties.add(plan.property);
+
+    // Add to inverse map.
+    Set<GestureRecognizer> gestureRecognizers = pausesSpringInverseMap.get(plan.property);
+    if (gestureRecognizers == null) {
+      gestureRecognizers = new HashSet<>();
+      pausesSpringInverseMap.put(plan.property, gestureRecognizers);
+    }
+    gestureRecognizers.add(plan.gestureRecognizer);
+
+    // Add state change listener.
+    plan.gestureRecognizer.addStateChangeListener(pausesSpringListener);
+  }
+
+  private final GestureStateChangeListener pausesSpringListener = new GestureStateChangeListener() {
+    @Override
+    public void onStateChanged(GestureRecognizer gestureRecognizer) {
+      Set<ReboundProperty> properties = pausesSpringMap.get(gestureRecognizer);
+      for (ReboundProperty property : properties) {
+        Spring spring = springs.get(property);
+        if (spring != null) {
+          switch (gestureRecognizer.getState()) {
+            case GestureRecognizer.BEGAN:
+              if (!pausedEndFractions.containsKey(spring)) {
+                pausedEndFractions.put(spring, spring.getEndValue());
+              }
+              spring.setAtRest();
+              break;
+            case GestureRecognizer.RECOGNIZED:
+            case GestureRecognizer.CANCELLED:
+              startSpring(spring, property, pausedEndFractions.remove(spring));
+              break;
+          }
+        }
+      }
+    }
+  };
+
+  private boolean isPropertyPaused(ReboundProperty property) {
+    Set<GestureRecognizer> gestureRecognizers = pausesSpringInverseMap.get(property);
+    if (gestureRecognizers != null) {
+      for (GestureRecognizer gestureRecognizer : gestureRecognizers) {
+        switch (gestureRecognizer.getState()) {
+          case GestureRecognizer.BEGAN:
+          case GestureRecognizer.CHANGED:
+            return true;
+        }
+      }
+    }
+
+    return false;
+  }
 
   /**
    * Fuzzy equal to for floats.
-   *
-   * <p>Returns true if {@code a} is equal to {@code b}, allowing for {@code epsilon} error due to
+   * <p>
+   * Returns true if {@code a} is equal to {@code b}, allowing for {@code epsilon} error due to
    * limitations in floating point accuracy.
-   *
-   * <p>Does not handle overflow, underflow, infinity, or NaN.
+   * <p>
+   * Does not handle overflow, underflow, infinity, or NaN.
    */
   private static boolean eq(double a, double b, double epsilon) {
     return Math.abs(a - b) <= epsilon;

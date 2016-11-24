@@ -21,13 +21,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+
 import com.facebook.rebound.SpringConfig;
 import com.google.android.libraries.remixer.annotation.RangeVariableMethod;
 import com.google.android.libraries.remixer.annotation.RemixerBinder;
 import com.google.android.libraries.remixer.ui.gesture.Direction;
 import com.google.android.libraries.remixer.ui.view.RemixerFragment;
+import com.google.android.material.motion.family.directmanipulation.Draggable;
+import com.google.android.material.motion.family.rebound.PausesSpring;
 import com.google.android.material.motion.family.rebound.ReboundProperty;
 import com.google.android.material.motion.family.rebound.SpringTo;
+import com.google.android.material.motion.gestures.DragGestureRecognizer;
 import com.google.android.material.motion.runtime.Runtime;
 
 /**
@@ -37,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
   private final Runtime runtime = new Runtime();
   private int tension;
+  private View target1;
+  private View target2;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -44,16 +50,20 @@ public class MainActivity extends AppCompatActivity {
 
     setContentView(R.layout.main_activity);
 
+    target1 = findViewById(R.id.target1);
+    target2 = findViewById(R.id.target2);
+
+    setupDemo1(target1);
+    setupDemo2(target2);
+
     RemixerBinder.bind(this);
     RemixerFragment remixerFragment = RemixerFragment.newInstance();
     remixerFragment.attachToGesture(this, Direction.UP, 3);
     remixerFragment.attachToButton(this, (Button) findViewById(R.id.remixer_button));
+  }
 
-    View content = findViewById(android.R.id.content);
-    final View target1 = findViewById(R.id.target1);
-    final View target2 = findViewById(R.id.target2);
-
-    content.setOnTouchListener(new OnTouchListener() {
+  private void setupDemo1(final View target) {
+    target.setOnTouchListener(new OnTouchListener() {
       @Override
       public boolean onTouch(View v, MotionEvent event) {
         SpringTo<Float> scaleTo = new SpringTo<>(ReboundProperty.SCALE, 1f);
@@ -71,16 +81,34 @@ public class MainActivity extends AppCompatActivity {
         float friction = (float) Math.sqrt(4 * tension); // Critically damped.
         scaleTo.configuration = new SpringConfig(tension, friction);
 
-        runtime.addPlan(scaleTo, target1);
-        runtime.addPlan(scaleTo, target2);
+        runtime.addPlan(scaleTo, target);
 
         return true;
       }
     });
   }
 
+  private void setupDemo2(View target) {
+    DragGestureRecognizer gestureRecognizer = new DragGestureRecognizer();
+    gestureRecognizer.dragSlop = 0;
+
+    float friction = (float) Math.sqrt(4 * tension); // Critically damped.
+    SpringConfig springConfig = new SpringConfig(tension, friction);
+    SpringTo translationX = new SpringTo<>(ReboundProperty.TRANSLATION_X, 0f);
+    SpringTo translationY = new SpringTo<>(ReboundProperty.TRANSLATION_Y, 0f);
+    translationX.configuration = springConfig;
+    translationY.configuration = springConfig;
+    runtime.addPlan(translationX, target);
+    runtime.addPlan(translationY, target);
+
+    runtime.addPlan(new Draggable(gestureRecognizer), target);
+    runtime.addPlan(new PausesSpring(ReboundProperty.TRANSLATION_X, gestureRecognizer), target);
+    runtime.addPlan(new PausesSpring(ReboundProperty.TRANSLATION_Y, gestureRecognizer), target);
+  }
+
   @RangeVariableMethod(maxValue = 1000, defaultValue = (int) SpringTo.DEFAULT_TENSION)
   public void setSpringTension(Integer tension) {
     this.tension = tension;
+    setupDemo2(target2);
   }
 }
