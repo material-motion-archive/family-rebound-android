@@ -15,20 +15,22 @@
  */
 package com.google.android.material.motion.family.rebound;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
+
 import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SteppingLooper;
+import com.google.android.material.motion.gestures.GestureRecognizer;
+import com.google.android.material.motion.gestures.testing.SimulatedGestureRecognizer;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming.IsActiveToken;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming.IsActiveTokenGenerator;
 import com.google.android.material.motion.runtime.Plan;
 import com.google.android.material.motion.runtime.Runtime;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,6 +40,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import static com.google.common.truth.Truth.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
@@ -212,6 +216,109 @@ public class ReboundPerformerTests {
     performer.lifecycleListener.onSpringActivate(spring);
   }
 
+  @Test
+  public void pausesExistingSpring() {
+    target.setAlpha(1f);
+
+    SpringTo<Float> fadeOut = new SpringTo<>(ReboundProperty.ALPHA, 0f);
+    runtime.addPlan(fadeOut, target);
+
+    // Change in alpha after 1 frame.
+    stepOnce();
+    float alpha = target.getAlpha();
+    assertThat(alpha).isLessThan(1f);
+
+    // Add PausesSpring plan.
+    SimulatedGestureRecognizer gesture = new SimulatedGestureRecognizer(target);
+    PausesSpring pause = new PausesSpring(ReboundProperty.ALPHA, gesture);
+    runtime.addPlan(pause, target);
+
+    gesture.setState(GestureRecognizer.BEGAN);
+    // No change in alpha after 1 frame.
+    stepOnce();
+    assertThat(target.getAlpha()).isWithin(0f).of(alpha);
+
+    gesture.setState(GestureRecognizer.RECOGNIZED);
+    // Change in alpha after 1 frame.
+    stepOnce();
+    assertThat(target.getAlpha()).isLessThan(alpha);
+  }
+
+  @Test
+  public void pausesFutureSpring() {
+    target.setAlpha(1f);
+
+    // Add PausesSpring plan for property with no spring.
+    SimulatedGestureRecognizer gesture = new SimulatedGestureRecognizer(target);
+    PausesSpring pause = new PausesSpring(ReboundProperty.ALPHA, gesture);
+    runtime.addPlan(pause, target);
+
+    gesture.setState(GestureRecognizer.BEGAN);
+
+    // Add spring to same property.
+    SpringTo<Float> fadeOut = new SpringTo<>(ReboundProperty.ALPHA, 0f);
+    runtime.addPlan(fadeOut, target);
+
+    // No change in alpha after 1 frame.
+    stepOnce();
+    assertThat(target.getAlpha()).isWithin(0f).of(1f);
+  }
+
+  @Test
+  public void oneGesturePauseMultipleProperties() {
+    target.setAlpha(1f);
+    target.setScaleX(1f);
+
+    SimulatedGestureRecognizer gesture = new SimulatedGestureRecognizer(target);
+    gesture.setState(GestureRecognizer.BEGAN);
+
+    runtime.addPlan(new PausesSpring(ReboundProperty.ALPHA, gesture), target);
+    runtime.addPlan(new PausesSpring(ReboundProperty.SCALE_X, gesture), target);
+
+    runtime.addPlan(new SpringTo<>(ReboundProperty.ALPHA, 0f), target);
+    runtime.addPlan(new SpringTo<>(ReboundProperty.SCALE_X, .5f), target);
+
+    stepOnce();
+    assertThat(target.getAlpha()).isWithin(0f).of(1f);
+    assertThat(target.getScaleX()).isWithin(0f).of(1f);
+  }
+
+  @Test
+  public void onePropertyPausedByMultipleGestures() {
+    target.setAlpha(1f);
+
+    SimulatedGestureRecognizer gesture1 = new SimulatedGestureRecognizer(target);
+    SimulatedGestureRecognizer gesture2 = new SimulatedGestureRecognizer(target);
+
+    runtime.addPlan(new SpringTo<>(ReboundProperty.ALPHA, 0f), target);
+    runtime.addPlan(new PausesSpring(ReboundProperty.ALPHA, gesture1), target);
+    runtime.addPlan(new PausesSpring(ReboundProperty.ALPHA, gesture2), target);
+
+    gesture1.setState(GestureRecognizer.BEGAN);
+    gesture2.setState(GestureRecognizer.POSSIBLE);
+    // No change.
+    stepOnce();
+    assertThat(target.getAlpha()).isWithin(0f).of(1f);
+
+    gesture1.setState(GestureRecognizer.RECOGNIZED);
+    gesture2.setState(GestureRecognizer.BEGAN);
+    // No change.
+    stepOnce();
+    assertThat(target.getAlpha()).isWithin(0f).of(1f);
+
+    gesture1.setState(GestureRecognizer.BEGAN);
+    gesture2.setState(GestureRecognizer.CHANGED);
+    // No change.
+    stepOnce();
+    assertThat(target.getAlpha()).isWithin(0f).of(1f);
+
+    gesture1.setState(GestureRecognizer.CANCELLED);
+    gesture2.setState(GestureRecognizer.RECOGNIZED);
+    // Change.
+    stepOnce();
+    assertThat(target.getAlpha()).isLessThan(1f);
+  }
+
   /**
    * Advance the spring simulation by one frame.
    */
@@ -230,8 +337,8 @@ public class ReboundPerformerTests {
   }
 
   /**
-   * Creates and initializes a ReboundPerformer manually, rather than letting the {@link Runtime} do
-   * it.
+   * Creates and initializes a ReboundPerformer manually, rather than letting the {@link Runtime}
+   * do it.
    */
   private ReboundPerformer createReboundPerformer() {
     ReboundPerformer performer = new ReboundPerformer();
