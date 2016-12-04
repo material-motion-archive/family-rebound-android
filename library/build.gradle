@@ -36,8 +36,8 @@ android {
 
 dependencies {
   // If you are developing any dependencies locally, also list them in local.dependencies.
-  compile 'com.github.material-motion:runtime-android:5.0.0'
-  compile 'com.github.material-motion:family-direct-manipulation-android:develop-SNAPSHOT'
+  compile 'com.github.material-motion:runtime-android:6.0.1'
+  compile 'com.github.material-motion:family-direct-manipulation-android:1.2.0'
 
   compile 'com.facebook.rebound:rebound:0.3.8'
 

@@ -22,11 +22,12 @@ import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringSystem;
+import com.google.android.material.motion.family.rebound.ReboundProperty.TypeConverterCompat;
 import com.google.android.material.motion.gestures.GestureRecognizer;
 import com.google.android.material.motion.gestures.GestureRecognizer.GestureStateChangeListener;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming;
-import com.google.android.material.motion.runtime.PlanFeatures.BasePlan;
+import com.google.android.material.motion.runtime.Plan;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +36,7 @@ import java.util.Set;
  * A performer that instantiates and manages {@link Spring Rebound springs}. A separate spring
  * instance is used for every animating {@link ReboundProperty property}.
  */
-public class ReboundPerformer extends Performer implements ContinuousPerforming {
+public class ReboundPerformer<T> extends Performer<T> implements ContinuousPerforming {
 
   /**
    * Use a single spring system for all rebound performers. This allows all springs to use the
@@ -47,10 +48,10 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
   private static final double EPSILON = 0.01f;
 
   @VisibleForTesting
-  final SimpleArrayMap<ReboundProperty, Spring> springs = new SimpleArrayMap<>();
-  private final SimpleArrayMap<GestureRecognizer, Set<ReboundProperty>> pausesSpringMap =
+  final SimpleArrayMap<ReboundProperty<? super T, ?>, Spring> springs = new SimpleArrayMap<>();
+  private final SimpleArrayMap<GestureRecognizer, Set<ReboundProperty<? super T, ?>>> pausesSpringMap =
     new SimpleArrayMap<>();
-  private final SimpleArrayMap<ReboundProperty, Set<GestureRecognizer>> pausesSpringInverseMap =
+  private final SimpleArrayMap<ReboundProperty<? super T, ?>, Set<GestureRecognizer>> pausesSpringInverseMap =
     new SimpleArrayMap<>();
 
   private final SimpleArrayMap<Spring, Double> pausedEndFractions = new SimpleArrayMap<>();
@@ -64,17 +65,17 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
   }
 
   @Override
-  public void addPlan(BasePlan plan) {
-    if (plan instanceof SpringTo) {
-      addSpringTo((SpringTo) plan);
-    } else if (plan instanceof PausesSpring) {
-      addPausesSpring((PausesSpring) plan);
+  public void addPlan(Plan<T> plan) {
+    if (plan instanceof ObjectSpringTo) {
+      addSpringTo((ObjectSpringTo<T, ?>) plan);
+    } else if (plan instanceof ObjectPausesSpring) {
+      addPausesSpring((ObjectPausesSpring<T>) plan);
     } else {
       throw new IllegalArgumentException("Plan type not supported for " + plan);
     }
   }
 
-  private void addSpringTo(SpringTo plan) {
+  private void addSpringTo(ObjectSpringTo<T, ?> plan) {
     Spring spring = getSpring(plan.property);
 
     if (plan.configuration != null) {
@@ -82,11 +83,13 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
       spring.getSpringConfig().friction = plan.configuration.friction;
     }
 
-    float destinationFraction = plan.property.converter.convert(plan.destination);
+    TypeConverterCompat converter = plan.property.converter;
+    //noinspection unchecked
+    float destinationFraction = converter.convert(plan.destination);
     startSpring(spring, plan.property, destinationFraction);
   }
 
-  private Spring getSpring(final ReboundProperty property) {
+  private Spring getSpring(final ReboundProperty<? super T, ?> property) {
     Spring spring = springs.get(property);
 
     if (spring == null) {
@@ -107,7 +110,7 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
     return spring;
   }
 
-  private void startSpring(Spring spring, ReboundProperty property, double destinationFraction) {
+  private void startSpring(Spring spring, ReboundProperty<? super T, ?> property, double destinationFraction) {
     float currentFraction = property.getFraction(getTarget());
     if (!eq(spring.getCurrentValue(), currentFraction, EPSILON)) {
       boolean setAtRest = true;
@@ -139,9 +142,9 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
     }
   };
 
-  private void addPausesSpring(PausesSpring plan) {
+  private void addPausesSpring(ObjectPausesSpring<T> plan) {
     // Add to map.
-    Set<ReboundProperty> properties = pausesSpringMap.get(plan.gestureRecognizer);
+    Set<ReboundProperty<? super T, ?>> properties = pausesSpringMap.get(plan.gestureRecognizer);
     if (properties == null) {
       properties = new HashSet<>();
       pausesSpringMap.put(plan.gestureRecognizer, properties);
@@ -163,8 +166,8 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
   private final GestureStateChangeListener pausesSpringListener = new GestureStateChangeListener() {
     @Override
     public void onStateChanged(GestureRecognizer gestureRecognizer) {
-      Set<ReboundProperty> properties = pausesSpringMap.get(gestureRecognizer);
-      for (ReboundProperty property : properties) {
+      Set<ReboundProperty<? super T, ?>> properties = pausesSpringMap.get(gestureRecognizer);
+      for (ReboundProperty<? super T, ?> property : properties) {
         Spring spring = springs.get(property);
         if (spring != null) {
           switch (gestureRecognizer.getState()) {
@@ -184,7 +187,7 @@ public class ReboundPerformer extends Performer implements ContinuousPerforming 
     }
   };
 
-  private boolean isPropertyPaused(ReboundProperty property) {
+  private boolean isPropertyPaused(ReboundProperty<? super T, ?> property) {
     Set<GestureRecognizer> gestureRecognizers = pausesSpringInverseMap.get(property);
     if (gestureRecognizers != null) {
       for (GestureRecognizer gestureRecognizer : gestureRecognizers) {

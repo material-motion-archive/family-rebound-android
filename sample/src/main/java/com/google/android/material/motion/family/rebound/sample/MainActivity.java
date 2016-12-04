@@ -32,14 +32,14 @@ import com.google.android.material.motion.family.rebound.PausesSpring;
 import com.google.android.material.motion.family.rebound.ReboundProperty;
 import com.google.android.material.motion.family.rebound.SpringTo;
 import com.google.android.material.motion.gestures.DragGestureRecognizer;
-import com.google.android.material.motion.runtime.Runtime;
+import com.google.android.material.motion.runtime.MotionRuntime;
 
 /**
  * Material Motion Rebound Family sample Activity.
  */
 public class MainActivity extends AppCompatActivity {
 
-  private final Runtime runtime = new Runtime();
+  private final MotionRuntime runtime = new MotionRuntime();
   private int tension;
   private View target1;
   private View target2;

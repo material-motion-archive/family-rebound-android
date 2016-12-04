@@ -15,16 +15,17 @@
  */
 package com.google.android.material.motion.family.rebound;
 
-import android.view.View;
-
 import com.google.android.material.motion.gestures.GestureRecognizer;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.Plan;
 
 /**
- * Pauses a view's {@link SpringTo spring} while a gesture recognizer is active.
+ * Pauses an object's {@link SpringTo spring} while a gesture recognizer is active.
  */
-public class PausesSpring extends ObjectPausesSpring<View> {
+public class ObjectPausesSpring<T> extends Plan<T> {
+
+  public final ReboundProperty<? super T, ?> property;
+  public GestureRecognizer gestureRecognizer;
 
   /**
    * Creates a PausesSpring plan.
@@ -34,7 +35,13 @@ public class PausesSpring extends ObjectPausesSpring<View> {
    * pause the spring and on {@link GestureRecognizer#RECOGNIZED} and {@link
    * GestureRecognizer#CANCELLED} will resume the spring.
    */
-  public PausesSpring(ReboundProperty<? super View, ?> property, GestureRecognizer gestureRecognizer) {
-    super(property, gestureRecognizer);
+  public ObjectPausesSpring(ReboundProperty<? super T, ?> property, GestureRecognizer gestureRecognizer) {
+    this.property = property;
+    this.gestureRecognizer = gestureRecognizer;
+  }
+
+  @Override
+  public Class<? extends Performer<T>> getPerformerClass() {
+    return (Class<? extends Performer<T>>) new ReboundPerformer<T>().getClass();
   }
 }

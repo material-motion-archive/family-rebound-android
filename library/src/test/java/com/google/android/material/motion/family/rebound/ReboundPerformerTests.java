@@ -25,11 +25,11 @@ import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SteppingLooper;
 import com.google.android.material.motion.gestures.GestureRecognizer;
 import com.google.android.material.motion.gestures.testing.SimulatedGestureRecognizer;
+import com.google.android.material.motion.runtime.MotionRuntime;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming.IsActiveToken;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming.IsActiveTokenGenerator;
 import com.google.android.material.motion.runtime.Plan;
-import com.google.android.material.motion.runtime.Runtime;
 
 import org.junit.After;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class ReboundPerformerTests {
    */
   private static final int FRAME = 16;
 
-  private Runtime runtime;
+  private MotionRuntime runtime;
   private View target;
   private SteppingLooper springLooper;
 
@@ -64,7 +64,7 @@ public class ReboundPerformerTests {
 
   @Before
   public void setUp() {
-    runtime = new Runtime();
+    runtime = new MotionRuntime();
     Context context = Robolectric.setupActivity(Activity.class);
     target = new View(context);
 
@@ -101,20 +101,20 @@ public class ReboundPerformerTests {
   @Test
   public void didChangeRuntimeState() {
     // Runtime is initially idle.
-    assertThat(runtime.getState()).isEqualTo(Runtime.IDLE);
+    assertThat(runtime.getState()).isEqualTo(MotionRuntime.IDLE);
 
     runtime.addPlan(new SpringTo<>(ReboundProperty.ALPHA, 0f), target);
 
     // Runtime is still idle - spring not yet activated.
-    assertThat(runtime.getState()).isEqualTo(Runtime.IDLE);
+    assertThat(runtime.getState()).isEqualTo(MotionRuntime.IDLE);
 
     // Runtime is now active.
     stepOnce();
-    assertThat(runtime.getState()).isEqualTo(Runtime.ACTIVE);
+    assertThat(runtime.getState()).isEqualTo(MotionRuntime.ACTIVE);
 
     // Runtime is idle again when settled.
     stepUntilSettled();
-    assertThat(runtime.getState()).isEqualTo(Runtime.IDLE);
+    assertThat(runtime.getState()).isEqualTo(MotionRuntime.IDLE);
   }
 
   @Test
