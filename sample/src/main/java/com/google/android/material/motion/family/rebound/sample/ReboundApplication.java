@@ -16,7 +16,8 @@
 package com.google.android.material.motion.family.rebound.sample;
 
 import android.app.Application;
-import com.google.android.libraries.remixer.ui.RemixerCallbacks;
+
+import com.google.android.libraries.remixer.ui.RemixerInitialization;
 
 /**
  * Required application implementation for Remixer.
@@ -26,6 +27,6 @@ public class ReboundApplication extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
-    registerActivityLifecycleCallbacks(RemixerCallbacks.getInstance());
+    RemixerInitialization.initRemixer(this);
   }
 }

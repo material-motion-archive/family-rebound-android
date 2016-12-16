@@ -7,17 +7,17 @@ group = 'com.github.material-motion'
 install {
   repositories.mavenInstaller {
     pom.version = 'local'
-    pom.artifactId = 'material-motion-family-rebound-android'
+    pom.artifactId = 'family-rebound-android'
   }
 }
 
 android {
-  compileSdkVersion 24
-  buildToolsVersion "24.0.3"
+  compileSdkVersion 25
+  buildToolsVersion '25.0.0'
 
   defaultConfig {
     minSdkVersion 15
-    targetSdkVersion 24
+    targetSdkVersion 25
     versionCode 1
     versionName "1.0"
     consumerProguardFiles 'proguard-rules.pro'
